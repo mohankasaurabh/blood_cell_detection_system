@@ -27,7 +27,7 @@
 <!-- ===================== Navbar ===================== -->
 <nav class="navbar">
     <a href="/" class="logo">
-        <span class="logo-mark">🩸</span> Blood<b>Cell</b> AI
+        <span class="logo-mark">🩸</span> AI-Powered Blood Cell Analysis Platform
     </a>
 
     <div class="nav-links">
@@ -89,26 +89,42 @@
 
 <!-- ===================== Upload ===================== -->
 <section class="upload-section">
-    <div class="upload-card">
-        <h2>Upload Blood Smear Image</h2>
-        <p class="upload-sub">Drag &amp; drop an image or click to browse</p>
+    <div class="upload-grid">
 
-        <form action="/detect" method="POST" enctype="multipart/form-data" id="uploadForm">
-            <div class="drop-zone" id="dropZone">
-                <input type="file" name="image" id="fileInput" required accept=".jpg,.jpeg,.png,image/*">
-                <div class="drop-icon">📤</div>
-                <p id="dropText">Drag &amp; Drop Image Here</p>
-                <span id="dropHint">or click to browse</span>
+        <!-- ===================== Upload (left) ===================== -->
+        <div class="upload-card">
+            <h2>Upload Blood Smear Image</h2>
+            <p class="upload-sub">Drag &amp; drop an image or click to browse</p>
 
-                <div class="format-tags">
-                    <span class="tag">JPG</span>
-                    <span class="tag">JPEG</span>
-                    <span class="tag">PNG</span>
+            <form action="/detect" method="POST" enctype="multipart/form-data" id="uploadForm">
+                <div class="drop-zone" id="dropZone">
+                    <input type="file" name="image" id="fileInput" required accept=".jpg,.jpeg,.png,image/*">
+                    <div class="drop-icon">📤</div>
+                    <p id="dropText">Drag &amp; Drop Image Here</p>
+                    <span id="dropHint">or click to browse</span>
+
+                    <div class="format-tags">
+                        <span class="tag">JPG</span>
+                        <span class="tag">JPEG</span>
+                        <span class="tag">PNG</span>
+                    </div>
                 </div>
-            </div>
 
-            <button type="submit" class="detect-btn">Run Detection</button>
-        </form>
+                <button type="submit" class="detect-btn">🔬 Upload Image</button>
+            </form>
+        </div>
+
+        <!-- ===================== Demo sample (right) ===================== -->
+        <div class="upload-card sample-card">
+            <h2>Try a Demo Sample</h2>
+            <p class="upload-sub">Instantly analyze a random curated blood smear image.</p>
+
+            <div class="sample-card-body">
+                <div class="sample-illustration">🧪</div>
+                <a href="/sample/random" class="btn sample-trigger sample-cta">🎲 Random Sample</a>
+            </div>
+        </div>
+
     </div>
 </section>
 

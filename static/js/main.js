@@ -131,6 +131,19 @@
                 if (overlay) overlay.classList.add("active");
             });
         }
+
+        // Sample buttons navigate (GET) and also trigger server-side detection,
+        // so show the same loading overlay while the request is in flight.
+        if (overlay) {
+            Array.prototype.forEach.call(
+                document.querySelectorAll(".sample-trigger"),
+                function (link) {
+                    link.addEventListener("click", function () {
+                        overlay.classList.add("active");
+                    });
+                }
+            );
+        }
     }
 
     /* ------------------------------------------------------------------ */
