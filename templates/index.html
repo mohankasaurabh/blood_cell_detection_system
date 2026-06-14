@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodCell AI | Detection System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <!-- Apply saved theme before paint to avoid a flash of wrong theme -->
+    <script>
+        (function () {
+            var t = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", t);
+        })();
+    </script>
+</head>
+
+<body>
+
+<!-- ===================== Navbar ===================== -->
+<nav class="navbar">
+    <a href="/" class="logo">
+        <span class="logo-mark">🩸</span> Blood<b>Cell</b> AI
+    </a>
+
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/reports">Reports</a>
+        <button id="themeToggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
+    </div>
+</nav>
+
+<!-- ===================== Flash messages ===================== -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="toast-stack" id="serverToasts">
+            {% for category, message in messages %}
+                <div class="toast {{ category }}">
+                    <span class="toast-icon">{{ "✅" if category == "success" else "⚠️" }}</span>
+                    <span class="toast-msg">{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<!-- ===================== Hero ===================== -->
+<section class="hero">
+    <span class="hero-badge"><span class="dot"></span> Powered by YOLO11m Computer Vision</span>
+
+    <h1>AI-Powered Blood Cell Detection &amp; Parasitemia Analysis System</h1>
+
+    <p>
+        Detect RBC, WBC, Platelets and Malaria Parasites in blood smear images
+        using a YOLO11m deep-learning model — with instant counts, parasitemia
+        scoring and downloadable medical reports.
+    </p>
+
+    <div class="hero-stats">
+        <div class="stat-card" style="animation-delay:.05s">
+            <div class="stat-icon">🧬</div>
+            <h2>4 Classes</h2>
+            <p>RBC · WBC · Platelet · Parasite</p>
+        </div>
+        <div class="stat-card" style="animation-delay:.1s">
+            <div class="stat-icon">⚡</div>
+            <h2>YOLO11m</h2>
+            <p>Real-time object detection</p>
+        </div>
+        <div class="stat-card" style="animation-delay:.15s">
+            <div class="stat-icon">🗄️</div>
+            <h2>SQLite</h2>
+            <p>Persistent analysis history</p>
+        </div>
+        <div class="stat-card" style="animation-delay:.2s">
+            <div class="stat-icon">📄</div>
+            <h2>PDF + CSV</h2>
+            <p>Exportable medical reports</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== Upload ===================== -->
+<section class="upload-section">
+    <div class="upload-card">
+        <h2>Upload Blood Smear Image</h2>
+        <p class="upload-sub">Drag &amp; drop an image or click to browse</p>
+
+        <form action="/detect" method="POST" enctype="multipart/form-data" id="uploadForm">
+            <div class="drop-zone" id="dropZone">
+                <input type="file" name="image" id="fileInput" required accept=".jpg,.jpeg,.png,image/*">
+                <div class="drop-icon">📤</div>
+                <p id="dropText">Drag &amp; Drop Image Here</p>
+                <span id="dropHint">or click to browse</span>
+
+                <div class="format-tags">
+                    <span class="tag">JPG</span>
+                    <span class="tag">JPEG</span>
+                    <span class="tag">PNG</span>
+                </div>
+            </div>
+
+            <button type="submit" class="detect-btn">Run Detection</button>
+        </form>
+    </div>
+</section>
+
+<footer>
+    Blood Cell Detection &amp; Parasitemia Analysis System · Built with Flask, PyTorch &amp; YOLO11m
+</footer>
+
+<!-- ===================== Loading overlay ===================== -->
+<div class="overlay" id="loadingOverlay">
+    <div class="overlay-card">
+        <div class="spinner"></div>
+        <h3>Analyzing Blood Smear…</h3>
+        <p>Running YOLO11m detection &amp; generating reports</p>
+    </div>
+</div>
+
+<!-- ===================== Toast host ===================== -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

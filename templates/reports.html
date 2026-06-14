@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports | BloodCell AI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <script>
+        (function () {
+            var t = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", t);
+        })();
+    </script>
+</head>
+
+<body>
+
+<!-- ===================== Navbar ===================== -->
+<nav class="navbar">
+    <a href="/" class="logo">
+        <span class="logo-mark">🩸</span> Blood<b>Cell</b> AI
+    </a>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/reports">Reports</a>
+        <button id="themeToggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
+    </div>
+</nav>
+
+<!-- ===================== Flash messages ===================== -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="toast-stack" id="serverToasts">
+            {% for category, message in messages %}
+                <div class="toast {{ category }}">
+                    <span class="toast-icon">{{ "✅" if category == "success" else "⚠️" }}</span>
+                    <span class="toast-msg">{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="container">
+
+    <div class="page-head">
+        <h1 class="page-title">Analysis Dashboard</h1>
+        <p class="page-sub">History of all blood smear analyses and downloadable reports.</p>
+    </div>
+
+    <!-- ============ KPI cards ============ -->
+    <div class="stat-row">
+        <div class="kpi" style="animation-delay:.02s">
+            <div class="kpi-icon i-reports">📊</div>
+            <div>
+                <div class="kpi-value">{{ stats.total_reports }}</div>
+                <div class="kpi-label">Total Reports</div>
+            </div>
+        </div>
+        <div class="kpi" style="animation-delay:.06s">
+            <div class="kpi-icon i-rbc">🔴</div>
+            <div>
+                <div class="kpi-value">{{ stats.total_rbc }}</div>
+                <div class="kpi-label">Total RBC</div>
+            </div>
+        </div>
+        <div class="kpi" style="animation-delay:.1s">
+            <div class="kpi-icon i-wbc">⚪</div>
+            <div>
+                <div class="kpi-value">{{ stats.total_wbc }}</div>
+                <div class="kpi-label">Total WBC</div>
+            </div>
+        </div>
+        <div class="kpi" style="animation-delay:.14s">
+            <div class="kpi-icon i-platelet">🟡</div>
+            <div>
+                <div class="kpi-value">{{ stats.total_platelets }}</div>
+                <div class="kpi-label">Total Platelets</div>
+            </div>
+        </div>
+        <div class="kpi" style="animation-delay:.18s">
+            <div class="kpi-icon i-parasite">🦠</div>
+            <div>
+                <div class="kpi-value">{{ stats.total_parasites }}</div>
+                <div class="kpi-label">Total Parasites</div>
+            </div>
+        </div>
+    </div>
+
+    {% if reports and reports|length > 0 %}
+
+    <!-- ============ Toolbar ============ -->
+    <div class="table-toolbar">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="tableSearch" placeholder="Search by image name…">
+        </div>
+        <span class="page-sub" id="resultCount"></span>
+    </div>
+
+    <!-- ============ Data table ============ -->
+    <div class="table-wrapper">
+        <table id="reportsTable">
+            <thead>
+                <tr>
+                    <th class="sortable" data-key="num">ID <span class="sort-ind">↕</span></th>
+                    <th class="sortable" data-key="text">Image Name <span class="sort-ind">↕</span></th>
+                    <th class="sortable" data-key="num">RBC <span class="sort-ind">↕</span></th>
+                    <th class="sortable" data-key="num">WBC <span class="sort-ind">↕</span></th>
+                    <th class="sortable" data-key="num">Platelet <span class="sort-ind">↕</span></th>
+                    <th class="sortable" data-key="num">Parasite <span class="sort-ind">↕</span></th>
+                    <th class="sortable" data-key="num">Parasitemia <span class="sort-ind">↕</span></th>
+                    <th class="sortable" data-key="text">Date <span class="sort-ind">↕</span></th>
+                    <th>PDF</th>
+                    <th>CSV</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="reportsBody">
+                {% for report in reports %}
+                {% set pdf_name = report['pdf_path'].split('/')[-1] if report['pdf_path'] else '' %}
+                {% set csv_name = report['csv_path'].split('/')[-1] if report['csv_path'] else '' %}
+                <tr data-search="{{ report['image_name']|lower }}">
+                    <td data-sort="{{ report['id'] }}">#{{ report['id'] }}</td>
+                    <td class="cell-name" data-sort="{{ report['image_name']|lower }}" title="{{ report['image_name'] }}">
+                        {{ report['image_name'] }}
+                    </td>
+                    <td data-sort="{{ report['rbc_count'] }}">{{ report['rbc_count'] }}</td>
+                    <td data-sort="{{ report['wbc_count'] }}">{{ report['wbc_count'] }}</td>
+                    <td data-sort="{{ report['platelet_count'] }}">{{ report['platelet_count'] }}</td>
+                    <td data-sort="{{ report['parasite_count'] }}">
+                        {% if report['parasite_count'] > 0 %}
+                            <span class="pill pos">{{ report['parasite_count'] }}</span>
+                        {% else %}
+                            <span class="pill zero">0</span>
+                        {% endif %}
+                    </td>
+                    <td data-sort="{{ report['parasitemia'] }}">{{ report['parasitemia'] }}%</td>
+                    <td data-sort="{{ report['created_at'] }}">{{ report['created_at'] }}</td>
+                    <td>
+                        {% if pdf_name %}
+                            <a class="icon-btn" title="Download PDF"
+                               href="{{ url_for('download_pdf', filename=pdf_name) }}">📄</a>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        {% if csv_name %}
+                            <a class="icon-btn" title="Download CSV"
+                               href="{{ url_for('download_csv', filename=csv_name) }}">📑</a>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        <div class="row-actions">
+                            <form action="{{ url_for('remove_report', report_id=report['id']) }}"
+                                  method="POST" class="delete-form" style="display:inline">
+                                <button type="submit" class="icon-btn danger" title="Delete report">🗑️</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- No search results -->
+    <div class="empty-state" id="noResults" style="display:none; margin-top:18px;">
+        <div class="empty-icon">🔎</div>
+        <h3>No matching reports</h3>
+        <p>Try a different image name.</p>
+    </div>
+
+    <!-- ============ Pagination ============ -->
+    <div class="pagination" id="pagination">
+        <span class="page-info" id="pageInfo"></span>
+        <div class="page-controls" id="pageControls"></div>
+    </div>
+
+    {% else %}
+
+    <!-- ============ Empty state ============ -->
+    <div class="empty-state">
+        <div class="empty-icon">🗂️</div>
+        <h3>No reports yet</h3>
+        <p>Run your first blood smear analysis to see results here.</p>
+        <a href="/" class="btn">Analyze an Image</a>
+    </div>
+
+    {% endif %}
+
+</div>
+
+<footer>
+    Blood Cell Detection &amp; Parasitemia Analysis System · Built with Flask, PyTorch &amp; YOLO11m
+</footer>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

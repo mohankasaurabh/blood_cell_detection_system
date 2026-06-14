@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results | BloodCell AI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <script>
+        (function () {
+            var t = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", t);
+        })();
+    </script>
+</head>
+
+<body>
+
+<!-- ===================== Navbar ===================== -->
+<nav class="navbar">
+    <a href="/" class="logo">
+        <span class="logo-mark">🩸</span> Blood<b>Cell</b> AI
+    </a>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/reports">Reports</a>
+        <button id="themeToggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="page-head">
+        <h1 class="page-title">Detection Results</h1>
+        <p class="page-sub">Analysis for <strong>{{ image }}</strong></p>
+    </div>
+
+    <!-- ============ Image comparison ============ -->
+    <div class="image-grid">
+        <div class="image-card">
+            <div class="card-head">
+                <h3>Original Blood Smear</h3>
+                <span class="chip">Input</span>
+            </div>
+            <div class="compare-media">
+                <img src="{{ url_for('static', filename='uploads/' + image) }}"
+                     alt="Original blood smear">
+            </div>
+        </div>
+
+        <div class="image-card" style="animation-delay:.08s">
+            <div class="card-head">
+                <h3>YOLO Detection Output</h3>
+                <span class="chip">Annotated</span>
+            </div>
+            <div class="compare-media">
+                <img src="{{ url_for('static', filename='outputs/' + output) }}"
+                     alt="Detection output">
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ Analysis report card ============ -->
+    <h2 class="section-title">Blood Analysis Report</h2>
+
+    <div class="report-card">
+        <div class="report-head">
+            <h2>Detection Summary</h2>
+            {% if counts['Parasite'] > 0 %}
+                <span class="badge danger">Parasites Detected</span>
+            {% else %}
+                <span class="badge success">No Parasites Detected</span>
+            {% endif %}
+        </div>
+
+        <div class="metric-grid">
+            <!-- RBC -->
+            <div class="metric">
+                <div class="metric-top">
+                    <span class="metric-dot dot-rbc"></span>
+                    <span class="metric-label">RBC Count</span>
+                </div>
+                <div class="metric-value">{{ counts['RBC'] }}</div>
+                <div class="metric-conf">Confidence: {{ confidences['RBC'] }}%</div>
+                <div class="conf-bar"><div class="conf-fill" style="width: {{ confidences['RBC'] }}%"></div></div>
+            </div>
+
+            <!-- WBC -->
+            <div class="metric">
+                <div class="metric-top">
+                    <span class="metric-dot dot-wbc"></span>
+                    <span class="metric-label">WBC Count</span>
+                </div>
+                <div class="metric-value">{{ counts['WBC'] }}</div>
+                <div class="metric-conf">Confidence: {{ confidences['WBC'] }}%</div>
+                <div class="conf-bar"><div class="conf-fill" style="width: {{ confidences['WBC'] }}%"></div></div>
+            </div>
+
+            <!-- Platelet -->
+            <div class="metric">
+                <div class="metric-top">
+                    <span class="metric-dot dot-platelet"></span>
+                    <span class="metric-label">Platelet Count</span>
+                </div>
+                <div class="metric-value">{{ counts['Platelet'] }}</div>
+                <div class="metric-conf">Confidence: {{ confidences['Platelet'] }}%</div>
+                <div class="conf-bar"><div class="conf-fill" style="width: {{ confidences['Platelet'] }}%"></div></div>
+            </div>
+
+            <!-- Parasite -->
+            <div class="metric">
+                <div class="metric-top">
+                    <span class="metric-dot dot-parasite"></span>
+                    <span class="metric-label">Parasite Count</span>
+                </div>
+                <div class="metric-value">{{ counts['Parasite'] }}</div>
+                <div class="metric-conf">Confidence: {{ confidences['Parasite'] }}%</div>
+                <div class="conf-bar"><div class="conf-fill" style="width: {{ confidences['Parasite'] }}%"></div></div>
+            </div>
+        </div>
+
+        <div class="parasitemia-strip">
+            <div class="pct">
+                <span class="num">{{ parasitemia }}%</span>
+                <span class="lbl">Parasitemia (Parasites / RBC)</span>
+            </div>
+            {% if counts['Parasite'] > 0 %}
+                <span class="badge danger">Status: Parasites Detected</span>
+            {% else %}
+                <span class="badge success">Status: Clear</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ============ Actions ============ -->
+    <div class="action-buttons">
+        <a class="btn" href="{{ url_for('download_pdf', filename=pdf_file) }}">⬇️ Download PDF</a>
+        <a class="btn success" href="{{ url_for('download_csv', filename=csv_file) }}">⬇️ Download CSV</a>
+        <a class="btn secondary" href="/">🔁 Analyze Another Image</a>
+        <a class="btn ghost" href="/reports">📊 View Reports</a>
+    </div>
+
+</div>
+
+<footer>
+    Blood Cell Detection &amp; Parasitemia Analysis System · Built with Flask, PyTorch &amp; YOLO11m
+</footer>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
